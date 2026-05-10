@@ -34,7 +34,9 @@
 #
 #   6. Add these to your GitHub repository (Settings → Secrets and variables):
 #      Variables:  GCP_PROJECT_ID, GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_SERVICE_ACCOUNT
-#      (No secrets needed — HF_TOKEN lives in Secret Manager, not GitHub)
+#      Secrets:    HF_TOKEN  (used at docker build time to bake the model into
+#                  the image; the same token is also stored in Secret Manager
+#                  for runtime under --set-secrets)
 
 name: Deploy to Cloud Run
 
@@ -75,7 +77,9 @@ jobs:
         env:
           IMAGE: ${{ env.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ env.REPO }}/${{ env.SERVICE }}:${{ github.sha }}
         run: |
-          docker build -t "$IMAGE" .
+          docker build \
+            --build-arg HF_TOKEN=${{ secrets.HF_TOKEN }} \
+            -t "$IMAGE" .
           docker push "$IMAGE"
 
       - name: Deploy to Cloud Run
