@@ -2,7 +2,7 @@
 # Build: docker build -t osllm-backend .
 # Run locally: docker run -e PORT=8080 -e HF_TOKEN=<token> -p 8080:8080 osllm-backend
 
-FROM pytorch/pytorch:2.7.0-cuda12.8-cudnn9-runtime
+FROM python:3.11-slim
 
 WORKDIR /app
 
