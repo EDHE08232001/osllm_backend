@@ -277,7 +277,7 @@ def after_request(response):
 # ============================================================================
 
 if __name__ == '__main__':
-    port = server_config.get("port", 5000)
+    port = int(os.getenv("PORT", server_config.get("port", 8080)))
     host = server_config.get("host", "0.0.0.0")
     debug = server_config.get("debug", False)
 
