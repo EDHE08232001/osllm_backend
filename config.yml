@@ -200,7 +200,7 @@ cloud:
     port: 8080
   
   cache:
-    preload_model: true
+    preload_model: false
   
   logging:
     level: "WARNING"  # Less verbose in cloud
