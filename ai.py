@@ -149,7 +149,7 @@ def generate_response(messages: list, max_tokens: int = None) -> str:
         )
 
         # Strip thinking tokens from output
-        response = _processor.parse_response(response)
+        _processor.parse_response(response)
 
         logger.info(f"Response generated successfully ({len(response)} chars)")
         return response
