@@ -1,0 +1,105 @@
+# Deploy to GCP Cloud Run on every push to main.
+#
+# One-time GCP setup required before this workflow will work:
+#
+#   1. Enable APIs:
+#      gcloud services enable run.googleapis.com \
+#        artifactregistry.googleapis.com \
+#        secretmanager.googleapis.com \
+#        iamcredentials.googleapis.com
+#
+#   2. Create Artifact Registry repository:
+#      gcloud artifacts repositories create osllm-backend \
+#        --repository-format=docker \
+#        --location=us-central1
+#
+#   3. Store your HuggingFace token (required for gated Gemma model):
+#      echo -n "hf_YOUR_TOKEN" | \
+#        gcloud secrets create HF_TOKEN --data-file=-
+#
+#   4. Create a deployment service account and grant it the required roles:
+#      gcloud iam service-accounts create osllm-deploy \
+#        --display-name="Cloud Run deployer"
+#
+#      for ROLE in roles/run.admin roles/artifactregistry.writer \
+#                  roles/secretmanager.secretAccessor roles/iam.serviceAccountUser; do
+#        gcloud projects add-iam-policy-binding $PROJECT_ID \
+#          --member="serviceAccount:osllm-deploy@$PROJECT_ID.iam.gserviceaccount.com" \
+#          --role="$ROLE"
+#      done
+#
+#   5. Configure Workload Identity Federation so GitHub Actions can authenticate
+#      without storing a service account key:
+#      https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions
+#
+#   6. Add these to your GitHub repository (Settings → Secrets and variables):
+#      Variables:  GCP_PROJECT_ID, GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_SERVICE_ACCOUNT
+#      (No secrets needed — HF_TOKEN lives in Secret Manager, not GitHub)
+
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REGION: us-central1
+  REPO: osllm-backend      # Artifact Registry repository name
+  SERVICE: osllm-backend   # Cloud Run service name
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # required for Workload Identity Federation
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Build and push image
+        env:
+          IMAGE: ${{ env.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ env.REPO }}/${{ env.SERVICE }}:${{ github.sha }}
+        run: |
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+
+      - name: Deploy to Cloud Run
+        env:
+          IMAGE: ${{ env.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ env.REPO }}/${{ env.SERVICE }}:${{ github.sha }}
+        run: |
+          gcloud run deploy ${{ env.SERVICE }} \
+            --image "$IMAGE" \
+            --region ${{ env.REGION }} \
+            --project ${{ vars.GCP_PROJECT_ID }} \
+            --gpu=1 \
+            --gpu-type=nvidia-l4 \
+            --cpu=8 \
+            --memory=32Gi \
+            --timeout=600 \
+            --min-instances=1 \
+            --max-instances=3 \
+            --set-secrets="HF_TOKEN=HF_TOKEN:latest" \
+            --allow-unauthenticated \
+            --quiet
+
+      - name: Print service URL
+        run: |
+          gcloud run services describe ${{ env.SERVICE }} \
+            --region ${{ env.REGION }} \
+            --project ${{ vars.GCP_PROJECT_ID }} \
+            --format="value(status.url)"
