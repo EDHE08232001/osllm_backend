@@ -6,7 +6,7 @@ Now loads all settings from config.yml
 """
 
 from flask import Flask, request, jsonify
-from dotenv import load_dotenv  # ✅ FIXED: was from flask.cli, should be from dotenv
+from dotenv import load_dotenv
 from flask_cors import CORS
 import logging
 import os
