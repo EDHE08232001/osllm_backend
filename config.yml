@@ -40,19 +40,18 @@ inference:
   
   # Temperature (0.0 = deterministic, 1.0 = very random)
   # Range: 0.0 - 2.0
-  # Recommended: 0.7 (balanced)
-  temperature: 0.7
-  
+  # Google's recommended value for Gemma is 1.0
+  temperature: 1.0
+
   # Top-p (nucleus sampling)
-  # Controls diversity, 0.9 is good default
+  # Controls diversity. Google's recommended value for Gemma is 0.95
   # Range: 0.0 - 1.0
-  top_p: 0.9
-  
+  top_p: 0.95
+
   # Top-k (alternative to top-p)
-  # Keep only top k most likely tokens
-  # Range: 0 (off) - 100
-  # 0 = disabled (use top_p instead)
-  top_k: 0
+  # Keep only top k most likely tokens.
+  # Google's recommended value for Gemma is 64.
+  top_k: 64
   
   # Repetition penalty (prevents repeating same phrases)
   # Range: 1.0 (no penalty) - 2.0
@@ -125,8 +124,9 @@ logging:
   level: "INFO"
   
   # Log file path (optional)
-  # Leave empty to log only to console
-  file: "logs/chatbot.log"
+  # Leave empty to log only to console.
+  # Cloud Run filesystem is read-only except /tmp, so default to console-only.
+  file: ""
   
   # Log format
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -147,7 +147,7 @@ cache:
   cache_model: true
   
   # Preload model on startup (loads before first request)
-  preload_model: false
+  preload_model: true
 
 # ============================================================================
 # API SETTINGS

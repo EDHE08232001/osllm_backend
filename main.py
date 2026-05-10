@@ -68,6 +68,11 @@ if server_config.get("cors_enabled", True):
 else:
     logger.info("CORS is disabled")
 
+# Preload model on startup if configured (avoids long first-request latency)
+if config.get("cache", {}).get("preload_model", False):
+    logger.info("Preloading model on startup (cache.preload_model=true)...")
+    load_model()
+
 # Global State
 conversations = {}
 
@@ -208,10 +213,7 @@ def chat():
 def clear():
     """Clear conversation endpoint"""
     try:
-        data = request.get_json()
-
-        if not data:
-            return jsonify({"error": "No JSON data provided"}), 400
+        data = request.get_json(silent=True) or {}
 
         session_id = data.get('session_id', get_session_id())
         clear_conversation(session_id)

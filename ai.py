@@ -63,13 +63,16 @@ def load_model():
         logger.info("Model already loaded")
         return
 
+    token = os.getenv("HF_TOKEN")
+
     logger.info(f"Loading model '{MODEL_ID}' with dtype '{MODEL_DTYPE}' on device map '{DEVICE_MAP}'...")
 
     try:
         logger.info(f"Loading processor from: {MODEL_ID}")
         _processor = AutoProcessor.from_pretrained(
             MODEL_ID,
-            trust_remote_code=True
+            trust_remote_code=True,
+            token=token,
         )
 
         logger.info(f"Loading model from: {MODEL_ID}")
@@ -77,7 +80,8 @@ def load_model():
             MODEL_ID,
             dtype=MODEL_DTYPE,  # ✅ FIXED: was torch_dtype, should be dtype
             device_map=DEVICE_MAP,
-            trust_remote_code=config["model"].get("trust_remote_code", True)
+            trust_remote_code=config["model"].get("trust_remote_code", True),
+            token=token,
         )
 
         _model_loaded = True
@@ -132,11 +136,8 @@ def generate_response(messages: list, max_tokens: int = None) -> str:
             "max_new_tokens": tokens,
             "temperature": TEMPERATURE,
             "top_p": TOP_P,
+            "top_k": TOP_K,
         }
-
-        # Add top_k only if it's > 0
-        if TOP_K > 0:  # ✅ FIXED: Better handling of top_k
-            gen_kwargs["top_k"] = TOP_K
 
         # Generate response
         outputs = _model.generate(**inputs, **gen_kwargs)
@@ -146,6 +147,9 @@ def generate_response(messages: list, max_tokens: int = None) -> str:
             outputs[0][input_len:],
             skip_special_tokens=True
         )
+
+        # Strip thinking tokens from output
+        response = _processor.parse_response(response)
 
         logger.info(f"Response generated successfully ({len(response)} chars)")
         return response

@@ -18,6 +18,12 @@ COPY main.py ai.py config.yml ./
 ENV TRANSFORMERS_CACHE=/app/.cache/huggingface
 ENV HF_HOME=/app/.cache/huggingface
 
+# Pre-bake the model into the image to eliminate runtime downloads
+# and avoid Cloud Run tmpfs OOM during cold start.
+ARG HF_TOKEN
+ENV HF_TOKEN=${HF_TOKEN}
+RUN python -c "from transformers import AutoProcessor, AutoModelForCausalLM; import os; token = os.environ.get('HF_TOKEN'); AutoProcessor.from_pretrained('google/gemma-4-E2B-it', token=token); AutoModelForCausalLM.from_pretrained('google/gemma-4-E2B-it', token=token, dtype='auto', device_map='cpu')"
+
 # Cloud Run sets PORT; gunicorn binds to it at startup.
 # --workers 1: each worker loads the full model into VRAM — one is enough.
 # --timeout 600: first request may trigger a ~10GB model download.
