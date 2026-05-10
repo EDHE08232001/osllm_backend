@@ -1,0 +1,206 @@
+# config.yml - Gemma 4 Chatbot Configuration
+# Edward He - CS Student, University of Ottawa
+# 
+# This file specifies model settings, server config, and behavior
+# Use this to easily switch between different models or configurations
+
+# ============================================================================
+# MODEL CONFIGURATION
+# ============================================================================
+
+model:
+  # Which model to use
+  # Options:
+  #   - google/gemma-4-E2B-it       (Gemma 4, recommended)
+  #   - google/gemma-2-27b-it        (Gemma 2, faster)
+  #   - google/gemma-2-9b-it         (Gemma 2 small, fastest)
+  #   - meta-llama/Llama-2-7b-chat   (Llama 2, alternative)
+  id: "google/gemma-4-E2B-it"
+  
+  # Model precision/dtype
+  # Options: auto, float32, float16, bfloat16
+  # auto = automatically choose best for your hardware
+  dtype: "auto"
+  
+  # Device mapping
+  # Options: auto, cpu, cuda, mps (Apple Silicon)
+  device_map: "auto"
+  
+  # Trust remote code from Hugging Face
+  # Set to true for custom models
+  trust_remote_code: true
+
+# ============================================================================
+# INFERENCE SETTINGS
+# ============================================================================
+
+inference:
+  # Maximum tokens to generate per response
+  max_tokens: 1024
+  
+  # Temperature (0.0 = deterministic, 1.0 = very random)
+  # Range: 0.0 - 2.0
+  # Recommended: 0.7 (balanced)
+  temperature: 0.7
+  
+  # Top-p (nucleus sampling)
+  # Controls diversity, 0.9 is good default
+  # Range: 0.0 - 1.0
+  top_p: 0.9
+  
+  # Top-k (alternative to top-p)
+  # Keep only top k most likely tokens
+  # Range: 0 (off) - 100
+  # 0 = disabled (use top_p instead)
+  top_k: 0
+  
+  # Repetition penalty (prevents repeating same phrases)
+  # Range: 1.0 (no penalty) - 2.0
+  repetition_penalty: 1.0
+  
+  # Timeout for inference (seconds)
+  # Set higher for slower models
+  timeout: 300
+
+# ============================================================================
+# SERVER CONFIGURATION
+# ============================================================================
+
+server:
+  # Server host
+  # 0.0.0.0 = accessible from any IP
+  # 127.0.0.1 = localhost only
+  host: "0.0.0.0"
+  
+  # Server port
+  port: 5000
+  
+  # Debug mode (True for development, False for production)
+  debug: false
+  
+  # Enable CORS (cross-origin requests)
+  cors_enabled: true
+  
+  # CORS allowed origins
+  # Use ["*"] to allow all (development only!)
+  # Use specific domains for production
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:5000"
+    - "https://yourdomain.com"
+  
+  # Max request size (MB)
+  max_content_length: 16
+
+# ============================================================================
+# CONVERSATION SETTINGS
+# ============================================================================
+
+conversation:
+  # Maximum message length (characters)
+  max_message_length: 2000
+  
+  # Minimum message length (characters)
+  min_message_length: 1
+  
+  # Keep conversation history in memory
+  keep_history: true
+  
+  # Maximum conversation turns to keep in memory
+  # Set to 0 for unlimited
+  # Set to N to only keep last N exchanges
+  max_history_turns: 0
+  
+  # Clear old sessions after X hours
+  # Set to 0 to disable cleanup
+  auto_cleanup_hours: 24
+
+# ============================================================================
+# LOGGING CONFIGURATION
+# ============================================================================
+
+logging:
+  # Log level
+  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+  
+  # Log file path (optional)
+  # Leave empty to log only to console
+  file: "logs/chatbot.log"
+  
+  # Log format
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # Log to console as well as file
+  console: true
+
+# ============================================================================
+# CACHE CONFIGURATION
+# ============================================================================
+
+cache:
+  # Where to cache Hugging Face models
+  # Leave empty to use default (~/.cache/huggingface/hub/)
+  huggingface_home: ""
+  
+  # Cache model locally
+  cache_model: true
+  
+  # Preload model on startup (loads before first request)
+  preload_model: false
+
+# ============================================================================
+# API SETTINGS
+# ============================================================================
+
+api:
+  # Include version in response
+  include_version: true
+  
+  # Include timestamp in responses
+  include_timestamp: true
+  
+  # Include model name in responses
+  include_model_info: true
+  
+  # Rate limiting (requests per minute per IP)
+  # Set to 0 to disable
+  rate_limit_rpm: 60
+
+# ============================================================================
+# OPTIONAL: DIFFERENT CONFIGURATIONS FOR DIFFERENT ENVIRONMENTS
+# ============================================================================
+
+# You can have environment-specific configs:
+
+development:
+  server:
+    debug: true
+    port: 5000
+  
+  inference:
+    max_tokens: 512  # Shorter for faster testing
+    temperature: 0.8
+
+production:
+  server:
+    debug: false
+    port: 8000
+  
+  inference:
+    max_tokens: 1024
+    temperature: 0.7
+  
+  cache:
+    preload_model: true  # Load on startup in production
+
+cloud:
+  server:
+    host: "0.0.0.0"
+    port: 8080
+  
+  cache:
+    preload_model: true
+  
+  logging:
+    level: "WARNING"  # Less verbose in cloud

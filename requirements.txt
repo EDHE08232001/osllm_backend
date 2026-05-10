@@ -1,0 +1,13 @@
+# Core Web Framework
+flask>=3.0.0              # Flask web server
+flask-cors>=4.0.0         # Handle cross-origin requests
+gunicorn>=21.2.0          # Production server
+
+# ML/AI (for ai.py)
+transformers>=4.35.0      # Hugging Face Transformers
+torch>=2.1.0              # PyTorch core
+
+# Optional but useful
+python-dotenv>=1.0.0      # Environment variables
+requests>=2.31.0          # HTTP requests
+pyyaml>=6.0.0             # YAML parsing

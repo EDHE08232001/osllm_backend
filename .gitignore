@@ -1,0 +1,218 @@
+# ============================================================================
+# PYTHON & ENVIRONMENT
+# ============================================================================
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+**/.venv/
+**/venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# pip
+pip-log.txt
+pip-delete-this-directory.txt
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Poetry
+poetry.lock
+
+# ============================================================================
+# IDE & EDITORS
+# ============================================================================
+
+# VS Code
+.vscode/
+.vscode/settings.json
+.vscode/launch.json
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+
+# Sublime
+*.sublime-project
+*.sublime-workspace
+
+# vim
+.vim
+*.swp
+*.swo
+*~
+
+# Emacs
+.emacs.d
+
+# ============================================================================
+# OS SPECIFIC
+# ============================================================================
+
+# macOS
+._*
+.DS_Store
+.AppleDouble
+.LSOverride
+*.swp
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.lnk
+
+# Linux
+.directory
+
+# ============================================================================
+# ENVIRONMENT & SECRETS
+# ============================================================================
+
+# Environment variables (NEVER commit these!)
+.env
+.env.local
+.env.*.local
+.env.prod
+.env.dev
+
+# Credentials and tokens
+*.pem
+*.key
+*.p12
+*.pfx
+config.local.yml
+
+# ============================================================================
+# PROJECT SPECIFIC
+# ============================================================================
+
+# Model cache (Hugging Face models are HUGE - don't commit!)
+.cache/
+.huggingface/
+~/.cache/huggingface/
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+
+# Database files (if using SQLite later)
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================================================
+# JUPYTER & NOTEBOOKS
+# ============================================================================
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# Notebook files (optional - only if you don't want to version them)
+# Uncomment if you want:
+# *.ipynb
+
+# ============================================================================
+# TESTING & COVERAGE
+# ============================================================================
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# unittest
+.unittest.xml
+
+# ============================================================================
+# BUILD & DISTRIBUTION
+# ============================================================================
+
+# Docker
+# (uncomment if you don't want to version Dockerfile)
+# Dockerfile
+# docker-compose.yml
+
+# ============================================================================
+# IDE TEMP FILES
+# ============================================================================
+
+.project
+.pydevproject
+.settings/
+*.cover
+
+# ============================================================================
+# MACOS SPECIFIC
+# ============================================================================
+
+.AppleDouble
+.LSOverride
+._*
+
+# ============================================================================
+# WINDOWS SPECIFIC
+# ============================================================================
+
+*.bat
+*.cmd
+
+# ============================================================================
+# MACHINE LEARNING / DATA
+# ============================================================================
+
+# Model files (if saving models)
+*.pkl
+*.pickle
+*.h5
+*.pth
+models/
+
+# Data files (if you add data)
+data/
+*.csv
+*.json (optional - only if large)
+
+# ============================================================================
+# DOCUMENTATION BUILD
+# ============================================================================
+
+site/
+docs/_build/
+
+# ============================================================================
+# COMMENTS
+# ============================================================================
+
+# These files SHOULD be committed:
+# - main.py (your code)
+# - ai.py (your code)
+# - config.yml (configuration)
+# - requirements.txt (dependencies)
+# - README.md (documentation)
+# - Dockerfile (if using)
+# - .github/ (GitHub workflows)
+
+# These files should NOT be committed:
+# - .env (secrets)
+# - venv/ (virtual environment)
+# - __pycache__/ (Python cache)
+# - .idea/ (IDE settings)
+# - .DS_Store (Mac)
+# - Hugging Face model cache (too large!)
