@@ -73,7 +73,7 @@ server:
   host: "0.0.0.0"
   
   # Server port
-  port: 5000
+  port: 8080
   
   # Debug mode (True for development, False for production)
   debug: false
