@@ -147,7 +147,7 @@ cache:
   cache_model: true
   
   # Preload model on startup (loads before first request)
-  preload_model: true
+  preload_model: false
 
 # ============================================================================
 # API SETTINGS
@@ -200,7 +200,7 @@ cloud:
     port: 8080
   
   cache:
-    preload_model: false
+    preload_model: true
   
   logging:
     level: "WARNING"  # Less verbose in cloud
