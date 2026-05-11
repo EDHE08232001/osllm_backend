@@ -10,6 +10,7 @@ COPY main.py ai.py config.yml ./
 
 ENV HF_HOME=/opt/hf-cache
 ARG HF_TOKEN
+ENV HF_TOKEN=$HF_TOKEN
 ARG MODEL_ID=google/gemma-4-E2B-it
 RUN python -c "from huggingface_hub import snapshot_download; snapshot_download(repo_id='${MODEL_ID}', token='${HF_TOKEN}')"
 
