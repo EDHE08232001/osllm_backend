@@ -1,0 +1,61 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker build \
+          --build-arg HF_TOKEN=$$HF_TOKEN \
+          --build-arg MODEL_ID=google/gemma-4-E2B-it \
+          -t us-central1-docker.pkg.dev/$PROJECT_ID/osllm/osllm-backend:$COMMIT_SHA \
+          -t us-central1-docker.pkg.dev/$PROJECT_ID/osllm/osllm-backend:latest \
+          .
+    secretEnv: ['HF_TOKEN']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/osllm/osllm-backend:$COMMIT_SHA'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Latest'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/osllm/osllm-backend:latest'
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'osllm-backend'
+      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/osllm/osllm-backend:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--cpu=8'
+      - '--memory=32Gi'
+      - '--cpu-boost'
+      - '--min-instances=0'
+      - '--max-instances=2'
+      - '--concurrency=1'
+      - '--timeout=600'
+      - '--port=8080'
+      - '--allow-unauthenticated'
+      - '--set-secrets=HF_TOKEN=hf-token:latest'
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/hf-token/versions/latest
+      env: 'HF_TOKEN'
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/osllm/osllm-backend:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/osllm/osllm-backend:latest'
+
+options:
+  machineType: 'E2_HIGHCPU_32'
+  diskSizeGb: 100
+  logging: CLOUD_LOGGING_ONLY
